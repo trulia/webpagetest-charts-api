@@ -1,5 +1,5 @@
-#Webpagetest Charts API
-[WebPagetest](http://www.webpagetest.org/) Rules.  There are tools that are easier to use, but nothing that lets you
+#WebPagetest Charts API
+[WebPagetest](http://www.webpagetest.org/) Rules. There are tools that are easier to use, but nothing that lets you
 really see deeply into the browser side of things. But there's no easy way to compare results over time.
 So this is a small express application that runs tests, stores them, and offers endpoints to access the
 data. It assumes that you'll want to look at a variety of charts for your data, so the
@@ -14,21 +14,21 @@ following datapoints are available:
 
 It also keeps links to
 the full WebPagetest results for deeper introspection. You can build a UI on
-this API.  A working example is https://github.com/trulia/webpagetest-charts-ui.  Visit that repo to see screenshots of what it can display.
+this API. A working example is https://github.com/trulia/webpagetest-charts-ui. Visit that repo to see screenshots of what it can display.
 
 And none of this would have happened without [marcelduran](https://github.com/marcelduran) and his 
 [webpagetest-api](https://github.com/marcelduran/webpagetest-api)
-module which made the data side of this very easy prototype quickly.
+module which made the data side of this very easy to prototype quickly.
 
 ## How It Works
-In this repo there's no database, just the file system (the data storage logic is it's own
-module, so it could be replaced with something else, PRs welcome). The app saves results into 
+In this repo, there's no database: just the file system. (The data storage logic is its own
+module, so it could be replaced with something else. PRs welcome) The app saves results into 
 `public/results/<test-suite-name>/<test-name>/<yyyy-mm-dd-hh-mm-ss/` directories
 containing images and json results from the test. The files with `fv` in their
 name are for the 'first view' and `rv` indicates the 'refresh view'.
 
 The endpoints then serve this data up in chartable summaries, as well as specific
-datapoints.  The available endopoints are served from the `/` url of the api.
+datapoints. The available endopoints are served from the `/` url of the api.
 
 
 ## Installation
@@ -55,18 +55,18 @@ Once everything is working well wrap it up in [forever](https://www.npmjs.com/pa
 
 ## Test Suite Config
 The json file is the only file needed for this app to run the way you want it to. The trickiest
-idea here is the 'parentPage' concept.  Often you want to test a page that's in an ever changing
+idea here is the 'parentPage' concept. Often you want to test a page that's in an ever changing
 list (eg: users with the most photos), or isn't persistent (eg: search results on temporal objects). For those
 cases you define the page that has your list, and give a selector to get the link that actually
 should be tested.
 
-Sometimes WebpageTest struggles, sometimes your site struggles. Sometimes for the sake 
-of the chart, you need to ignore outliers.  You can specify a data range and date range
+Sometimes WebPagetest struggles, sometimes your site struggles. Sometimes for the sake 
+of the chart, you need to ignore outliers. You can specify a data range and date range
 in your config and those results will be ignored in the chart
 (though you can choose to show them)
 
 
-Here is a annotated sample.  Note that these comments are not valid json, so it's not 
+Here is a annotated sample. Note that these comments are not valid json, so it's not 
 cut and pasteable.
 
 ```JavaScript
@@ -164,7 +164,7 @@ cut and pasteable.
 
 ## Todo
 1. Package into something npm installable
-1. Specify an internal webpagetest instance to use instead of the public resource
+1. Specify an internal WebPagetest instance to use instead of the public resource
 1. Alow a custom directory for data, as opposed to `public/results`
 1. Let the config do more around configuring the tests.
 1. Generate the filmstrip images with the data suplied, not by making WPT do the work.
