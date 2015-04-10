@@ -33,7 +33,7 @@ dataStore = {
       return;
     }
 
-    var response = results.response.data
+    var response = results.data
       , datePath = moment().format('YYYY-MM-DD-HH-mm-ss')
       , datapointPath = test.suitePathName + path.sep + test.testId + path.sep + datePath
       , datapointDir  = resultsPath + datapointPath
@@ -47,7 +47,7 @@ dataStore = {
       if (err) console.error(err);
     });
 
-    debug('Saved results for ' + results.response.testUrl);
+    debug('Saved results for ' + response.testUrl);
 
   },
 
@@ -56,8 +56,6 @@ dataStore = {
     var tests = fs.readdirSync(resultsPath + suiteId + path.sep + testId).filter(junk.not)
       , testIndex = tests.indexOf(datapointId)
       , testDir = resultsPath + suiteId + path.sep + testId + path.sep + tests[testIndex] + path.sep
-      , baseTestPath = path.sep + 'suite' + path.sep + suiteId + path.sep + testId + path.sep
-      , publicPath = path.sep + 'results' + path.sep + suiteId + path.sep + testId + path.sep + tests[testIndex] + path.sep
       , data = {}
       , resourceBase = '/results/' + suiteId + '/' + testId + '/' + datapointId + '/'
       ;
@@ -66,10 +64,6 @@ dataStore = {
       datapointId: datapointId,
       suiteId: suiteId,
       testId: testId,
-      firstViewWaterfallImage: resourceBase + 'fv_waterfall.png',
-      repeatViewWaterfallImage: resourceBase + 'rv_waterfall.png',
-      firstViewfilmstripImage: resourceBase + 'fv_filmstrip.png',
-      repeatViewFilmstripImage: resourceBase + 'rv_filmstrip.png',
       jsonLink: resourceBase + 'results.json',
       testResults: jf.readFileSync(testDir + 'results.json'),
       testDate: tests[testIndex],
@@ -112,12 +106,10 @@ dataStore = {
 
     testDirs = fs.readdirSync(testDirBase).filter(junk.not);
     testDirs.forEach(function(testDir){
-      var dirVals = testDir.split('-')
-        , dirDate = new Date(dirVals[0], (dirVals[1] - 1), dirVals[2], dirVals[3], dirVals[4], dirVals[5])
-        , datapoint = {
+      var datapoint = {
             id: testDir,
             //sync to keep the array of results in order. lil lazy/slow
-            data: jf.readFileSync(testDirBase + path.sep + testDir + path.sep + 'results.json').response.data
+            data: jf.readFileSync(testDirBase + path.sep + testDir + path.sep + 'results.json').data
           }
         ;
       suiteTests.datapoints.push(datapoint);
@@ -138,30 +130,30 @@ function goodTestResults (results) {
       , res = true
       ;
 
-    if (!results.response.data.run) {
-      msg = 'no results.response.data.run';
+    if (!results.data.runs[1]) {
+      msg = 'no results.data.runs[1]';
       res = false;
-    } else if (!results.response.data.run.firstView) {
-      msg = 'no results.response.data.run.firstView';
+    } else if (!results.data.runs[1].firstView) {
+      msg = 'no results.data.runs[1].firstView';
       res = false;
-    } else if (!results.response.data.run.repeatView) {
-      msg = 'no results.response.data.run.repeatView';
+    } else if (!results.data.runs[1].repeatView) {
+      msg = 'no results.data.runs[1].repeatView';
       res = false;
-    } else if (!results.response.data.run.firstView.images) {
-      msg = 'no results.response.data.run.firstView.images';
+    } else if (!results.data.runs[1].firstView.images) {
+      msg = 'no results.data.runs[1].firstView.images';
       res = false;
-    } else if (!results.response.data.run.repeatView.images) {
-      msg = 'no results.response.data.run.repeatView.images';
+    } else if (!results.data.runs[1].repeatView.images) {
+      msg = 'no results.data.runs[1].repeatView.images';
       res = false;
-    } else if (!results.response.data.run.firstView.results.SpeedIndex) {
-      msg = 'no results.response.data.run.firstView.results.SpeedIndex';
+    } else if (!results.data.runs[1].firstView.SpeedIndex) {
+      msg = 'no results.data.runs[1].firstView.SpeedIndex';
       res = false;
-    } else if (!results.response.data.run.repeatView.results.SpeedIndex) {
-      msg = 'no results.response.data.run.repeatView.results.SpeedIndex';
+    } else if (!results.data.runs[1].repeatView.SpeedIndex) {
+      msg = 'no results.data.runs[1].repeatView.SpeedIndex';
       res = false;
     }
 
     debug(msg);
-    debug(results.response.data.run);
+    debug(results);
     return res;
 }

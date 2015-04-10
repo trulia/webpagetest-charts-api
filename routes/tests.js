@@ -150,14 +150,14 @@ function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
   ;
 
   datapoints.forEach(function(dp) {
-    var dataDate = new Date(dp.data.completed);
+    var dataDate = new Date(dp.data.completed * 1000);
     //if older ignore.
     if (dataDate < dateCutoff) {
       return;
     }
 
-    fvPointValue = parseInt(dp.data.run.firstView.results[chartConfig.type], 10);
-    rvPointValue = parseInt(dp.data.run.repeatView.results[chartConfig.type], 10);
+    fvPointValue = parseInt(dp.data.runs[1].firstView[chartConfig.type], 10);
+    rvPointValue = parseInt(dp.data.runs[1].repeatView[chartConfig.type], 10);
 
     if (inRange(fvPointValue, chartConfig.dataRange)
       && inRange(rvPointValue, chartConfig.dataRange)) {
