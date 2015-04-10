@@ -19,7 +19,6 @@ var availableChartTypes = [
   "SpeedIndex",
   "loadTime",
   "fullyLoaded",
-  "requests",
   "TTFB",
   "visualComplete"
 ];
@@ -130,9 +129,10 @@ function makeDateCutoff(cutoff, suiteConfig) {
 }
 
 function makeDataRange(range, suiteConfig) {
-  var dataRange = range ? range.split(',') : [0,0]
+  var dataRange = !range ? [0,0] : range.split(',').map(function(val){ return parseInt(val, 10) || Infinity })
     , defaultVal = (suiteConfig && suiteConfig.dataRange) ? suiteConfig.dataRange : defaultChartConfig.dataRange
     ;
+
   //valid range, or default for suite, or default for anything
   return (dataRange[0] < dataRange[1]) ? dataRange : defaultVal;
 }

@@ -29,7 +29,7 @@ dataStore = {
 
     //the internet is flaky sometimes
     if (!goodTestResults(results)){
-      console.error('Test Died on: ' + results.response.data.testUrl);
+      console.error('Test Died on: ' + results.data.testUrl);
       return;
     }
 
