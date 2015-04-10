@@ -35,6 +35,8 @@ datapoints. The available endopoints are served from the `/` url of the api.
 
 1. clone this repo
 
+1. do an `npm install` 
+
 1. Create a json config file with your test suites. See 'Test Suite Config' below.
 
 1. Run the server with: `SUITE_CONFIG=/your/wpt-api/config-file.json npm start`.
@@ -45,9 +47,9 @@ spam WPT with requests. Be patient, let it run
 
 If things get weird You can get into debug mode with:
 
-`DEBUG="wpt-api"*  npm start`
+`DEBUG='wpt-api*'  npm start`
 
-And it'll get chatty. Or specify just the module you're debugging for less verbosity.
+And it'll get real chatty. Or specify just the module you're debugging for less verbosity.
 Building a service on top of a module that talks to a service can get weird sometimes,
 so there's lots of debugging.
 
