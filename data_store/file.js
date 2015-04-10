@@ -37,26 +37,10 @@ dataStore = {
       , datePath = moment().format('YYYY-MM-DD-HH-mm-ss')
       , datapointPath = test.suitePathName + path.sep + test.testId + path.sep + datePath
       , datapointDir  = resultsPath + datapointPath
-      , firstViewFilmstripImg = 'http://www.webpagetest.org/video/filmstrip.php?tests=' + response.testId + '-r:1-c:0&thumbSize=100&ival=500&end=visual&text=ffffff&bg=000000'
-      , repeatFilmstripImg = 'http://www.webpagetest.org/video/filmstrip.php?tests=' + response.testId + '-r:1-c:1&thumbSize=100&ival=500&end=visual&text=ffffff&bg=000000'
-      , firstViewFilmstrip = 'http://www.webpagetest.org/video/compare.php?tests=' + response.testId + '-r:1-c:0'
-      , repeatViewFilmstrip = 'http://www.webpagetest.org/video/compare.php?tests=' + response.testId + '-r:1-c:1'
       ;
 
     //make the new dir structure
     mkdirp.sync(datapointDir);
-
-    //grab the waterfall image, and save it with the date into the name-d folder
-    request(response.run.firstView.images.waterfall).pipe(fs.createWriteStream(datapointDir + path.sep + 'fv_waterfall.png'));
-    request(response.run.repeatView.images.waterfall).pipe(fs.createWriteStream(datapointDir + path.sep + 'rv_waterfall.png'));
-
-    //grab the fv filmstrip image, and save a url to the filmstrip page in the data
-    request(firstViewFilmstripImg).pipe(fs.createWriteStream(datapointDir + path.sep + 'fv_filmstrip.png'));
-    response.run.firstView.pages.fvFilmstrip = datapointPath + path.sep + 'fv_filmstrip.png';
-
-    //grab the rv filmstrip image, and save a url to the filmstrip page in the data
-    request(repeatFilmstripImg).pipe(fs.createWriteStream(datapointDir + path.sep + 'rv_filmstrip.png'));
-    response.run.firstView.pages.rvFilmstrip = datapointPath + path.sep + 'rv_filmstrip.png';
 
     //save the json test data to a file
     jf.writeFile(datapointDir + path.sep + 'results.json', results, function(err) {
