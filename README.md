@@ -8,7 +8,7 @@ following datapoints are available:
 - SpeedIndex: Google's special score
 - loadTime: How long (ms) to load the critical page content
 - fullyLoaded: How long (ms) to fully load all the page content
-- requests: how many requests are made when loading the page
+- ~~requests: how many requests are made when loading the page~~ (needs update for new API response)
 - TTFB: time to the first byte recieved, rumored to be the most important for SEO
 - visualComplete: Time (ms) until the page is done changing visually
 
@@ -24,8 +24,7 @@ module which made the data side of this very easy to prototype quickly.
 In this repo, there's no database: just the file system. (The data storage logic is its own
 module, so it could be replaced with something else. PRs welcome) The app saves results into 
 `public/results/<test-suite-name>/<test-name>/<yyyy-mm-dd-hh-mm-ss/` directories
-containing images and json results from the test. The files with `fv` in their
-name are for the 'first view' and `rv` indicates the 'refresh view'.
+containing the json results from the test.
 
 The endpoints then serve this data up in chartable summaries, as well as specific
 datapoints. The available endopoints are served from the `/` url of the api.
@@ -167,6 +166,6 @@ cut and pasteable.
 ## Todo
 1. Package into something npm installable
 1. Specify an internal WebPagetest instance to use instead of the public resource
-1. Alow a custom directory for data, as opposed to `public/results`
+1. Allow a custom directory for data, as opposed to `public/results`
 1. Let the config do more around configuring the tests.
-1. Generate the filmstrip images with the data suplied, not by making WPT do the work.
+1. Refactor config to be less confusing (each test a file in the config directory?)
