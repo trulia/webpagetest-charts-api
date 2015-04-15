@@ -162,6 +162,16 @@ cut and pasteable.
 
   ```
 
+## Contributing
+PRs are Happily Accepted! The preferred PR method is:
+
+1. Fork this repo
+2. Create a feature branch on your fork
+3. code things
+4. PR your feature branch to this master
+5. We'll check out your PR, test, code review and when it's ready merge it in.
+
+If you have a larger idea, feel free to bring it up in an issue first
 
 ## Todo
 1. Package into something npm installable
