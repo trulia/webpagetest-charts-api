@@ -9,6 +9,7 @@ var debug     = require('debug')('wpt-api:tests');
 var _         = require('lodash');
 var jf        = require('jsonfile');
 var moment    = require('moment');
+var cache     = require('memory-cache');
 var dataStore = require('../data_store/file');
 
 /*
@@ -28,6 +29,10 @@ var defaultChartConfig = {
   dateCutoff: 30
 };
 
+var defaultHeaders = {
+  'Cache-Control': 'public, max-age: 3600'
+};
+
 
 
 /**
@@ -35,28 +40,30 @@ var defaultChartConfig = {
  * within those tests.
  */
 router.get('/:suiteId', function(req, res) {
-  var data  = dataStore.getSuite(req.params.suiteId)
-    , suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suite})
-    ;
+  var data = getCache(req);
 
-  data.charts = [];
-  data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
-  data.availableChartTypes = availableChartTypes;
-  data.suiteConfig = suiteConfig;
+  if (!data) {
+    data = dataStore.getSuite(req.params.suiteId);
+    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suite});
 
-  data.tests.forEach(function(testName){
-    testData = dataStore.getSuiteTest(data.suite, testName);
-    data.charts.push(chartFromDatapoints(
-      data.suite,
-      _.find(suiteConfig.testPages, {testId: testName}),
-      testData.datapoints,
-      data.chartConfig
-    ));
-  });
+    data.charts = [];
+    data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
+    data.availableChartTypes = availableChartTypes;
+    data.suiteConfig = suiteConfig;
 
-  debug('data for suite ' + req.params.suiteId);
-  debug(data);
+    data.tests.forEach(function(testName){
+      testData = dataStore.getSuiteTest(data.suite, testName);
+      data.charts.push(chartFromDatapoints(
+        data.suite,
+        _.find(suiteConfig.testPages, {testId: testName}),
+        testData.datapoints,
+        data.chartConfig
+      ));
+    });
+    setCache(req, data)
+  }
 
+  res.set(defaultHeaders);
   res.json(data);
   
 });
@@ -67,11 +74,14 @@ router.get('/:suiteId', function(req, res) {
  * this is a lot you probably want '/:suiteId'
  */
 router.get('/:suiteId/:testId', function(req, res) {
-  var data  = dataStore.getSuiteTest(req.params.suiteId, req.params.testId);
+  var data = getCache(req);
 
-  debug('results for test:' + req.params.suiteId + ' - ' + req.params.testId);
-  debug(data);
+  if (!data) {
+    data = dataStore.getSuiteTest(req.params.suiteId, req.params.testId);
+    setCache(req, data)
+  }
 
+  res.set(defaultHeaders);
   res.json(data);
   
 });
@@ -80,22 +90,28 @@ router.get('/:suiteId/:testId', function(req, res) {
 /**
  * Get a specific datapoint
  */
-router.get('/:suiteId/:testId/:datapoint', function(req, res) {
+router.get('/:suiteId/:testId/:datapointId', function(req, res) {
 
-  var data  = dataStore.getDatapoint(req.params.suiteId, req.params.testId, req.params.datapoint)
-    , suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId})
-    , testData = dataStore.getSuiteTest(data.suiteId, data.testId)
+  var data = getCache(req);
+
+  if (!data) {
+    data = dataStore.getDatapoint(req.params.suiteId, req.params.testId, req.params.datapointId);
+    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId})
+      , testData = cachedData(['suiteId', 'testId'], req) || dataStore.getSuiteTest(data.suiteId, data.testId)
     ;
 
-  data.testConfig = _.find(suiteConfig.testPages, {testId: data.testId});
-  data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
-  data.chart = chartFromDatapoints(
-    data.suiteId,
-    _.find(suiteConfig.testPages, {testId: data.testId}),
-    testData.datapoints,
-    data.chartConfig
-  );
-  debug(data);
+    data.testConfig = _.find(suiteConfig.testPages, {testId: data.testId});
+    data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
+    data.chart = chartFromDatapoints(
+      data.suiteId,
+      _.find(suiteConfig.testPages, {testId: data.testId}),
+      testData.datapoints,
+      data.chartConfig
+    );
+    setCache(req, data)
+  }
+
+  res.set(defaultHeaders);
   res.json(data);
 
 });
@@ -175,3 +191,36 @@ function inRange (value, range) {
   debug('inRange comparing ' + value + ' to ' + range.toString());
   return value > range[0] && value < range[1];
 }
+
+function cacheKey(req) {
+  var paramsKey = 'suite' + req.params.suiteId +
+                  'test' + req.params.testId +
+                  'dp' + req.params.datapointId
+    , queryKey  = 'ct' + req.query.chartType +
+                  'dr' + req.query.dataRange +
+                  'dc' + req.query.dateCutoff
+    ;
+
+  return paramsKey + queryKey;
+}
+
+function getCache(req) {
+  var key = cacheKey(req)
+    , data = cache.get(key)
+    ;
+
+  debug('getting cache key: ' + key);
+  debug(data);
+
+  return data;
+}
+
+function setCache(req, data) {
+    var key = cacheKey(req);
+
+  debug('setting cache key: ' + key);
+  debug(data);
+  
+  return cache.put(key, data, 1000 * (60 * 60));
+}
+
