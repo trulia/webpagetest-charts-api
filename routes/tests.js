@@ -97,8 +97,14 @@ router.get('/:suiteId/:testId/:datapointId', function(req, res) {
   if (!data) {
     data = dataStore.getDatapoint(req.params.suiteId, req.params.testId, req.params.datapointId);
     var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId})
-      , testData = cachedData(['suiteId', 'testId'], req) || dataStore.getSuiteTest(data.suiteId, data.testId)
+      , testReq = _.cloneDeep(req)
+      , testData
     ;
+
+    //get and cache the data for the test.  used to build the in page chart.
+    delete testReq.params.datapointId;
+    testData = getCache(testReq) || dataStore.getSuiteTest(data.suiteId, data.testId)
+    setCache(testReq, testData)
 
     data.testConfig = _.find(suiteConfig.testPages, {testId: data.testId});
     data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
@@ -223,4 +229,3 @@ function setCache(req, data) {
   
   return cache.put(key, data, 1000 * (60 * 60));
 }
-
