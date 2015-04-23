@@ -136,7 +136,7 @@ cut and pasteable.
           "testId": "publicProfile",
 
           // url to test using the host above.  
-          "testPath": "/profile/testUser"
+          "path": "/profile/testUser"
 
           // tests can have their own host if they need to override the suite
           // eg, our pages vs. our competitors pages.
