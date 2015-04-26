@@ -34,7 +34,7 @@ router.get('/:testSuite', function(req, res, next) {
   var testSuite  = _.find(testConfig.testSuites, 'suiteId', req.params.testSuite);
   eventEmitter.emit('startTests', testSuite);
   res.json({message: 'tests have started for ' + req.params.testSuite});
-  
+
 });
 
 module.exports = router;
@@ -116,7 +116,7 @@ function prepareTest(item, asyncCallback) {
  * needs to be parsed for the actual link to test
  */
 function isParentPage(page) {
-  return !!page.parentHrefSelector && !!page.parentPath;
+  return _.has(page, 'parentHrefSelector') && _.has(page, 'parentPath');
 }
 
 /*
@@ -137,7 +137,7 @@ function getHrefFromElement(body, selector) {
   var href
     , $ = cheerio.load(body)
     ;
-  
+
   if ($(selector)[0]) {
     href = $(selector)[0].attribs.href;
   }
@@ -195,12 +195,3 @@ function runTest(test) {
     dataStore.saveDatapoint(test, results);
   });
 }
-
-
-
-
-
-
-
-
-
