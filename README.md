@@ -85,9 +85,6 @@ cut and pasteable.  A usable test version is in the repo under example_config.js
   // you'll need one of these
   "wptApiKey": "get one from http://www.webpagetest.org/getkey.php",
 
-  // what port should your server run on.
-  "port": 3001,
-
   // A Suite is a collection of urls under a theme.
   // e.g.: User Profiles.
   "testSuites":[
