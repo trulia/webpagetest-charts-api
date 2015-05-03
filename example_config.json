@@ -1,7 +1,6 @@
 {
 
   "wptApiKey": "get one from http://www.webpagetest.org/getkey.php",
-  "port": 3001,
   "testSuites":[
     {
       "suiteDisplayName": "GoogleVsBingVsDDG",
