@@ -192,18 +192,6 @@ function runTest(test) {
       return console.error([err, {url: test.url, options: options}]);
     }
 
-
-    //trim results data, the dataset is huge.
-    try {
-      delete results.data.average;
-      delete results.data.median;
-      delete results.data.standardDeviation;
-      delete results.data.runs[1].firstView.requests;
-      delete results.data.runs[1].repeatView.requests;
-    } catch(e) {
-      debug('ran into trouble deleting extra data.')
-    }
-
     dataStore.saveDatapoint(test, results);
   });
 }
