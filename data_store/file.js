@@ -33,6 +33,19 @@ dataStore = {
       return;
     }
 
+    //trim results data, the JSON is too big
+    //for this sync file system based
+    //dataStore implementation.
+    try {
+      delete results.data.average;
+      delete results.data.median;
+      delete results.data.standardDeviation;
+      delete results.data.runs[1].firstView.requests;
+      delete results.data.runs[1].repeatView.requests;
+    } catch(e) {
+      debug('ran into trouble deleting extra data.')
+    }
+
     var response = results.data
       , datePath = moment().format('YYYY-MM-DD-HH-mm-ss')
       , datapointPath = test.suitePathName + path.sep + test.testId + path.sep + datePath
