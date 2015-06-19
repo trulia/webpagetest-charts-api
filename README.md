@@ -179,7 +179,9 @@ PRs are Happily Accepted! The preferred PR method is:
 4. PR your feature branch to this master
 5. We'll check out your PR, test, code review and when it's ready merge it in.
 
-If you have a larger idea, feel free to bring it up in an issue first
+If you have a larger idea, feel free to bring it up in an issue first.  Please 
+note that this project is released with a Contributor Code of Conduct. By 
+participating in this project you agree to abide by its terms.
 
 ## Todo
 1. Package into something npm installable
@@ -187,3 +189,5 @@ If you have a larger idea, feel free to bring it up in an issue first
 1. Allow a custom directory for data, as opposed to `public/results`
 1. Let the config do more around configuring the tests.
 1. Refactor config to be less confusing (each test a file in the config directory?)
+
+
