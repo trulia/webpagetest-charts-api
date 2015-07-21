@@ -22,7 +22,6 @@ app.use(logger('dev'));
 app.use(compress());
 
 //used to serve saved assets saved to the fs from wpt
-//via the data_store/file.js
 app.use(express.static(path.join(__dirname, 'public')));
 
 

@@ -37,9 +37,29 @@ datapoints. The available endpoints are served from the `/` url of the api.
 
 1. clone this repo
 
-1. do an `npm install`
-
 1. Create a json config file with your test suites. See 'Test Suite Config' below.
+
+1. Decide if you want to use the filesystem to store your data (default),
+or a database. The Filesystem works well, but can get slow if there are
+lots of data points.  If you want to use a database:
+  1. Create a postgres/mysql/sqlite table with the schema (postgres shown, datapoint_id needs to be an auto increment column.):
+
+    ```sql
+    CREATE TABLE webpagetestcharts (
+  	  test_results text  NOT NULL,
+  	  date timestamp without time zone  NOT NULL,
+  	  suite_id text  NOT NULL,
+  	  test_id text  NOT NULL,
+  	  datapoint_id integer DEFAULT nextval('id_seq'::regclass) NOT NULL
+    );
+    ```
+
+  1. Edit the file `data_store/index.js` to require the correct interface (`db`).
+  1. Edit the connection string in `data_store/db.js` to connect to the database.
+  1. In `package.json`, update the `any-db-*` database module to reference
+  the correct db type (postgres is the default).
+
+1. do an `npm install`
 
 1. Run the server with: `SUITE_CONFIG=/your/wpt-api/config-file.json npm start`. You MUST specify a `SUITE_CONFIG` otherwise you'll get an error when the app starts.
 
@@ -179,8 +199,8 @@ PRs are Happily Accepted! The preferred PR method is:
 4. PR your feature branch to this master
 5. We'll check out your PR, test, code review and when it's ready merge it in.
 
-If you have a larger idea, feel free to bring it up in an issue first.  Please 
-note that this project is released with a Contributor Code of Conduct. By 
+If you have a larger idea, feel free to bring it up in an issue first.  Please
+note that this project is released with a Contributor Code of Conduct. By
 participating in this project you agree to abide by its terms.
 
 ## Todo
@@ -189,5 +209,3 @@ participating in this project you agree to abide by its terms.
 1. Allow a custom directory for data, as opposed to `public/results`
 1. Let the config do more around configuring the tests.
 1. Refactor config to be less confusing (each test a file in the config directory?)
-
-

@@ -12,11 +12,14 @@ var _           = require('lodash');
 var WebPageTest = require('webpagetest');
 var cheerio     = require('cheerio');
 var request     = require('request');
+var url         = require('url');
 
 var querystring = require('querystring');
 var async       = require('async');
-var dataStore   = require('../data_store/file');
 var events      = require('events');
+
+var dataStore   = require('../data_store');
+
 
 
 var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
@@ -57,7 +60,7 @@ eventEmitter.on('startTests', function startTests(testSuite) {
       location: testSuite.location
     });
 
-    testSuite.testPages[index].suitePathName = testSuite.suiteId;
+    testSuite.testPages[index].suiteId = testSuite.suiteId;
 
     if(testSuite.parentRequestUserAgent){
       testSuite.testPages[index].headers = {'User-Agent': testSuite.parentRequestUserAgent};
@@ -94,6 +97,7 @@ function convertToWPTRequests(testPages) {
 function prepareTest(item, asyncCallback) {
   debug('preparing...');
   debug(item);
+  var hrefUrl;
   //parentPage tests are twofold. Visit a page, get a url from that page, then test that url
   if(isParentPage(item)) {
     item.url = item.testHost + item.parentPath;
@@ -101,8 +105,8 @@ function prepareTest(item, asyncCallback) {
       if (err) {
         console.error(err);
       }
-
-      item.url = makeTestUrl(item.testHost, getHrefFromElement(body,item.parentHrefSelector), item.queryStringData);
+      hrefUrl = url.parse(getHrefFromElement(body,item.parentHrefSelector));
+      item.url = makeTestUrl(item.testHost, hrefUrl.path, item.queryStringData);
       asyncCallback(null, item);
     });
   } else {

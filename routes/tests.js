@@ -7,10 +7,13 @@ var express   = require('express');
 var router    = express.Router();
 var debug     = require('debug')('wpt-api:tests');
 var _         = require('lodash');
+var async     = require('async');
 var jf        = require('jsonfile');
 var moment    = require('moment');
 var cache     = require('memory-cache');
-var dataStore = require('../data_store/file');
+
+//change this to the data store you want to use
+var dataStore   = require('../data_store');
 
 /*
  * Settings for tests
@@ -42,50 +45,12 @@ var defaultHeaders = {
 router.get('/:suiteId', function(req, res) {
   var data = getCache(req);
 
-  if (!data) {
-    data = dataStore.getSuite(req.params.suiteId);
-    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suite});
-
-    data.charts = [];
-    data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
-    data.availableChartTypes = availableChartTypes;
-    data.suiteConfig = suiteConfig;
-
-    data.tests.forEach(function(testName){
-      testData = dataStore.getSuiteTest(data.suite, testName);
-      data.charts.push(chartFromDatapoints(
-        data.suite,
-        _.find(suiteConfig.testPages, {testId: testName}),
-        testData.datapoints,
-        data.chartConfig
-      ));
-    });
-    setCache(req, data)
+  if(data) {
+    encloseRenderSuite(req, res)(data)
+  } else {
+    data = dataStore.getSuite(req.params.suiteId, encloseRenderSuite(req, res));
   }
-
-  res.set(defaultHeaders);
-  res.json(data);
-  
 });
-
-
-/**
- * Get the all the results for a specific test
- * this is a lot you probably want '/:suiteId'
- */
-router.get('/:suiteId/:testId', function(req, res) {
-  var data = getCache(req);
-
-  if (!data) {
-    data = dataStore.getSuiteTest(req.params.suiteId, req.params.testId);
-    setCache(req, data)
-  }
-
-  res.set(defaultHeaders);
-  res.json(data);
-  
-});
-
 
 /**
  * Get a specific datapoint
@@ -94,31 +59,16 @@ router.get('/:suiteId/:testId/:datapointId', function(req, res) {
 
   var data = getCache(req);
 
-  if (!data) {
-    data = dataStore.getDatapoint(req.params.suiteId, req.params.testId, req.params.datapointId);
-    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId})
-      , testReq = _.cloneDeep(req)
-      , testData
-    ;
-
-    //get and cache the data for the test.  used to build the in page chart.
-    delete testReq.params.datapointId;
-    testData = getCache(testReq) || dataStore.getSuiteTest(data.suiteId, data.testId)
-    setCache(testReq, testData)
-
-    data.testConfig = _.find(suiteConfig.testPages, {testId: data.testId});
-    data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
-    data.chart = chartFromDatapoints(
-      data.suiteId,
-      _.find(suiteConfig.testPages, {testId: data.testId}),
-      testData.datapoints,
-      data.chartConfig
+  if (data) {
+    encloseRenderDatapoint(req, res)(data);
+  } else {
+    dataStore.getDatapoint(
+      req.params.suiteId,
+      req.params.testId,
+      req.params.datapointId,
+      encloseRenderDatapoint(req, res)
     );
-    setCache(req, data)
-  }
-
-  res.set(defaultHeaders);
-  res.json(data);
+  };
 
 });
 
@@ -181,11 +131,12 @@ function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
     fvPointValue = parseInt(dp.data.runs[1].firstView[chartConfig.type], 10);
     rvPointValue = parseInt(dp.data.runs[1].repeatView[chartConfig.type], 10);
 
+    //this filtering should be moved to the data_store
     if (inRange(fvPointValue, chartConfig.dataRange)
       && inRange(rvPointValue, chartConfig.dataRange)) {
       chart.fvValues.push([dataDate.getTime(), fvPointValue]);
       chart.rvValues.push([dataDate.getTime(), rvPointValue]);
-      chart.datapoints.push(dp.id);
+      chart.datapoints.push(dp.datapointId);
     }
 
   });
@@ -226,6 +177,58 @@ function setCache(req, data) {
 
   debug('setting cache key: ' + key);
   debug(data);
-  
+
   return cache.put(key, data, 1000 * (60 * 60));
+}
+
+function encloseRenderSuite(req, res) {
+  return function renderSuite(data) {
+
+    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId});
+
+    data.charts = [];
+    data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
+    data.availableChartTypes = availableChartTypes;
+    data.suiteConfig = suiteConfig;
+
+    async.map(data.tests, function(testName, asyncCallback){
+      dataStore.getSuiteTest(data.suiteId, testName, function(testData){
+        data.charts.push(chartFromDatapoints(
+          data.suiteId,
+          _.find(suiteConfig.testPages, {testId: testName}),
+          testData.datapoints,
+          data.chartConfig
+        ));
+        asyncCallback();
+      });
+    }, function(err, results) {
+      setCache(req, data)
+      res.set(defaultHeaders);
+      res.json(data);
+    });
+  }
+}
+
+function encloseRenderDatapoint(req, res) {
+  return function renderDatapoint(data) {
+    var suiteConfig = _.find(masterConfig.testSuites, {suiteId: data.suiteId})
+      , testData
+    ;
+
+    dataStore.getSuiteTest(data.suiteId, data.testId, function(testData){
+      data.testConfig = _.find(suiteConfig.testPages, {testId: data.testId});
+      data.chartConfig = buildChartConfig(req, suiteConfig.chartConfig);
+      data.chart = chartFromDatapoints(
+        data.suiteId,
+        _.find(suiteConfig.testPages, {testId: data.testId}),
+        testData.datapoints,
+        data.chartConfig
+      );
+      setCache(req, data)
+
+
+      res.set(defaultHeaders);
+      res.json(data);
+    });
+  }
 }
