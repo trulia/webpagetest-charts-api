@@ -1,5 +1,4 @@
 {
-
   "wptApiKey": "get one from http://www.webpagetest.org/getkey.php",
   "testSuites":[
     {
@@ -8,7 +7,7 @@
       "desc": "This suite runs on a Chrome in Dulles, VA",
       "runEvery": 600,
       "testHost": "http://google.com/",
-      "location": "Dulles_Chrome40",
+      "location": "ec2-us-west-2:Chrome",
       "chartConfig" : [
         {
           "type" : "SpeedIndex",
@@ -43,7 +42,7 @@
       "desc": "This suite runs on Chrome in Dulles, VA",
       "runEvery": 1200,
       "testHost": "http://reddit.com/",
-      "location": "Dulles_Chrome40",
+      "location": "ec2-us-west-2:Chrome",
       "chartConfig" : [
         {
           "type" : "SpeedIndex",
