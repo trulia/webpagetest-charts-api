@@ -1,9 +1,9 @@
 //specify the dataStore that you want to use
-//var interface = require('./file');
+//var dataInterface = require('./file');
 var dataInterface = require('./db');
 var debug         = require('debug')('wpt-api:data_store');
 
-var interface = {
+var apiInterface = {
   saveDatapoint: function saveDatapoint_interface (test, results) {
 
     //the internet is flaky sometimes
@@ -31,7 +31,7 @@ var interface = {
   getSuiteTest: dataInterface.getSuiteTest
 };
 
-module.exports = interface;
+module.exports = apiInterface;
 
 
 /*

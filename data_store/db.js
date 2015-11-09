@@ -9,8 +9,8 @@ var async         = require('async');
 var camelCaseKeys = require('camelcase-keys');
 var db            = require('any-db');
 
-
-var config  = {conString: 'driver://user:pass@localhost/database'};
+//update this string with your db type, login, server, and db name
+var config  = {conString: 'need-to-specify://user:pass@server/database-name'};
 
 dataStore = {
 
