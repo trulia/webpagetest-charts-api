@@ -187,7 +187,8 @@ function runTest(test) {
         timeout       : 600, //wait for 10 minutes
         video         : true, //this enables the filmstrip
         location      : test.location,
-        firstViewOnly : false //do calculate the second/refresh view
+        firstViewOnly : false, //do calculate the second/refresh view
+        requests      : false //do not capture the details of every request
       }
     ;
 
