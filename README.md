@@ -205,7 +205,6 @@ participating in this project you agree to abide by its terms.
 
 ## Todo
 1. Package into something npm installable
-1. Specify an internal WebPagetest instance to use instead of the public resource
 1. Allow a custom directory for data, as opposed to `public/results`
 1. Let the config do more around configuring the tests.
 1. Refactor config to be less confusing (each test a file in the config directory?)
