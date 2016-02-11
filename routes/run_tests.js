@@ -180,8 +180,10 @@ function getTestRunTimeout() {
  */
 function runTest(test) {
   debug('Starting test on ' + test.url + ' using ' + test.location);
-  var testConfig = jf.readFileSync(process.env.SUITE_CONFIG)
-    , wptPublic = new WebPageTest('www.webpagetest.org', testConfig.wptApiKey)
+  var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
+  var wptLoc = testConfig.wptServer ? testConfig.wptServer : 'www.webpagetest.org';
+
+  var wptPublic = new WebPageTest(wptLoc, testConfig.wptApiKey)
     , options = {
         pollResults   : 5, //poll every 5 seconds
         timeout       : 600, //wait for 10 minutes

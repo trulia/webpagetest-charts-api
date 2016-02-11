@@ -1,5 +1,6 @@
 {
   "wptApiKey": "get one from http://www.webpagetest.org/getkey.php",
+  "wptServer": "use this for a private wpt instance, otherwise delete it",
   "testSuites":[
     {
       "suiteDisplayName": "GoogleVsBingVsDDG",
