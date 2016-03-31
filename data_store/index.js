@@ -1,6 +1,6 @@
 //specify the dataStore that you want to use
-//var dataInterface = require('./file');
-var dataInterface = require('./db');
+var dataInterface = require('./file');
+//var dataInterface = require('./db');
 var debug         = require('debug')('wpt-api:data_store');
 
 var apiInterface = {
