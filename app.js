@@ -18,6 +18,30 @@ var tests       = require('./routes/tests');
 
 var app         = express();
 
+// if you want authentication, uncomment this section
+// and `npm install --save basic-auth`
+// note, that your ui can access the api using the login
+// in the url:  http://a-username:a-password@example.com/
+// var basicAuth = require('basic-auth');
+//
+// checkAuth = function(username, password) {
+//   return function(req, res, next) {
+//     var user = basicAuth(req);
+//
+//     if (!user || user.name !== username || user.pass !== password) {
+//       res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+//       return res.send(401);
+//     }
+//
+//     next();
+//   };
+// };
+//
+// // change these...
+// app.use(checkAuth('a-username', 'a-password'));
+// end auth section
+
+
 app.use(logger('dev'));
 app.use(compress());
 
