@@ -181,7 +181,7 @@ function getTestRunTimeout() {
 function runTest(test) {
   debug('Starting test on ' + test.url + ' using ' + test.location);
   var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
-  var wptLoc = testConfig.wptServer ? testConfig.wptServer : 'www.webpagetest.org';
+  var wptLoc = testConfig.wptServer ? testConfig.wptServer : 'https://www.webpagetest.org';
 
   var wptPublic = new WebPageTest(wptLoc, testConfig.wptApiKey)
     , options = {
