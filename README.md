@@ -1,4 +1,4 @@
-#WebPagetest Charts API
+# WebPagetest Charts API
 [WebPagetest](http://www.webpagetest.org/) Rules. There are tools that are easier to use, but nothing that lets you
 really see deeply into the browser side of things. But there's no easy way to compare results over time.
 So this is a small express application that runs tests, stores them, and offers endpoints to access the
