@@ -19,7 +19,7 @@
     "lodash": "4.13.1",
     "memory-cache": "0.1.6",
     "mkdirp": "0.5.1",
-    "moment": "2.14.1",
+    "moment": "2.19.3 ",
     "morgan": "1.7.0",
     "pg": "6.0.1",
     "request": "2.74.0",
