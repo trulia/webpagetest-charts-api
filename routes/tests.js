@@ -101,12 +101,20 @@ function makeDateCutoff(cutoff, suiteConfig) {
 }
 
 function makeDataRange(range, suiteConfig) {
-  var dataRange = !range ? [0,0] : range.split(',').map(function(val){ return parseInt(val, 10) || Infinity })
-    , defaultVal = (suiteConfig && suiteConfig.dataRange) ? suiteConfig.dataRange : defaultChartConfig.dataRange
-    ;
+  var range = range ? range : '0,0';
+  var defaultVal = (suiteConfig && suiteConfig.dataRange) ? suiteConfig.dataRange : defaultChartConfig.dataRange;
+
+  var dataRange = range.split(',').map(function(val){
+          var parsed = parseInt(val, 10)
+            if (isNaN(parsed)) {
+              parsed = Infinity 
+            }
+            return parsed;
+      })
 
   //valid range, or default for suite, or default for anything
-  return (dataRange[0] < dataRange[1]) ? dataRange : defaultVal;
+  var validRange = (dataRange[0] < dataRange[1]) ? dataRange : defaultVal
+  return validRange;
 }
 
 function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
