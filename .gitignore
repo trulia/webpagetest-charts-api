@@ -3,3 +3,4 @@ node_modules
 public/results
 npm-debug.log
 .idea
+config.json

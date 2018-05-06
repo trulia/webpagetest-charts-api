@@ -3,41 +3,42 @@
  * The saving of the data is handled by the dataStore.
  */
 
-var express     = require('express');
-var router      = express.Router();
-var debug       = require('debug')('wpt-api:run_tests');
-var jf          = require('jsonfile');
-var _           = require('lodash');
+const express = require("express");
+const router = express.Router();
+const debug = require("debug")("wpt-api:run_tests");
+const jf = require("jsonfile");
+const _ = require("lodash");
 
-var WebPageTest = require('webpagetest');
-var cheerio     = require('cheerio');
-var request     = require('request');
-var url         = require('url');
+const WebPageTest = require("webpagetest");
+const cheerio = require("cheerio");
+const request = require("request");
+const url = require("url");
 
-var querystring = require('querystring');
-var async       = require('async');
-var events      = require('events');
+const querystring = require("querystring");
+const async = require("async");
+const events = require("events");
 
-var dataStore   = require('../data_store');
+const dataStore = require("../data_store");
 
-
-
-var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
-var eventEmitter = new events.EventEmitter();
+let testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
+let eventEmitter = new events.EventEmitter();
 
 // Used to space out the test runs to prevent
 // accidentally overwhleming WPT
-var nextTestRun = Date.now();
-var testInterval = (1000 * 10);
+let nextTestRun = Date.now();
+let testInterval = 1000 * 10;
 
 /*
  * Run the tests for the given suite
  */
-router.get('/:testSuite', function(req, res, next) {
-  var testSuite  = _.find(testConfig.testSuites, 'suiteId', req.params.testSuite);
-  eventEmitter.emit('startTests', testSuite);
-  res.json({message: 'tests have started for ' + req.params.testSuite});
+router.get("/:testSuite", function(req, res, next) {
+  const testSuite = _.find(
+    testConfig.testSuites,
+    {suiteId: req.params.testSuite}
+  );
 
+  eventEmitter.emit("startTests", testSuite);
+  res.json({ message: "tests have started for " + req.params.testSuite });
 });
 
 module.exports = router;
@@ -47,11 +48,11 @@ module.exports = router;
  * into a format that WPT will like, gathering urls
  * if necessary
  */
-eventEmitter.on('startTests', function startTests(testSuite) {
-  debug('starting tests on ' + testSuite);
+eventEmitter.on("startTests", function startTests(testSuite) {
+  debug("starting tests on " + testSuite.suiteId);
 
   //blend the suite settings into each test.
-  testSuite.testPages.forEach(function(el, index, arr){
+  testSuite.testPages.forEach(function(el, index, arr) {
     _.defaults(testSuite.testPages[index], {
       testHost: testSuite.testHost,
       queryStringData: testSuite.queryStringData,
@@ -62,14 +63,14 @@ eventEmitter.on('startTests', function startTests(testSuite) {
 
     testSuite.testPages[index].suiteId = testSuite.suiteId;
 
-    if(testSuite.parentRequestUserAgent){
-      testSuite.testPages[index].headers = {'User-Agent': testSuite.parentRequestUserAgent};
+    if (testSuite.parentRequestUserAgent) {
+      testSuite.testPages[index].headers = {
+        "User-Agent": testSuite.parentRequestUserAgent
+      };
     }
-
   });
 
   convertToWPTRequests(testSuite.testPages);
-
 });
 
 /*
@@ -78,16 +79,32 @@ eventEmitter.on('startTests', function startTests(testSuite) {
  * is wrapped in async.
  */
 function convertToWPTRequests(testPages) {
-  debug('converting tests');
+  debug("converting tests");
   debug(testPages);
-  async.map(testPages, prepareTest, function(err, tests){
-    debug('prepared');
+  async.map(testPages, prepareTest, function(err, tests) {
+    debug("prepared");
     debug(tests);
-    eventEmitter.emit('runTests', tests);
+    eventEmitter.emit("runTests", tests);
   });
-
 }
 
+function buildTestScript(item) {
+  //wrap the pre script so that it's ignored inthe process
+  var script = [];
+  var testUrl;
+  if (item.fullTestScript) {
+    script = item.fullTestScript;
+  } else {
+    if (item.preTestScript) {
+      script = item.preTestScript.slice(0)
+      script.push({ logdata: 1 });
+      script.unshift({ logdata: 0 });
+    }
+    testUrl = makeTestUrl(item.testHost, item.path, item.queryStringData);
+    script.push({ navigate: testUrl });
+  }
+  return script;
+}
 
 /*
  * Take a test item and set it up to be processed by WPT
@@ -95,22 +112,24 @@ function convertToWPTRequests(testPages) {
  * the `map` call in `convertToWPTRequests` is done
  */
 function prepareTest(item, asyncCallback) {
-  debug('preparing...');
+  debug("preparing...");
   debug(item);
   var hrefUrl;
+  var testUrl;
+
   //parentPage tests are twofold. Visit a page, get a url from that page, then test that url
-  if(isParentPage(item)) {
+  if (isParentPage(item)) {
     item.url = item.testHost + item.parentPath;
     request(item, function prepareEm(err, response, body) {
       if (err) {
         console.error(err);
       }
-      hrefUrl = url.parse(getHrefFromElement(body,item.parentHrefSelector));
-      item.url = makeTestUrl(item.testHost, hrefUrl.path, item.queryStringData);
+      item.path = url.parse(getHrefFromElement(body, item.parentHrefSelector));
+      item.script = buildTestScript(item);
       asyncCallback(null, item);
     });
   } else {
-    item.url = makeTestUrl(item.testHost, item.path, item.queryStringData);
+    item.script = buildTestScript(item);
     asyncCallback(null, item);
   }
 }
@@ -120,55 +139,53 @@ function prepareTest(item, asyncCallback) {
  * needs to be parsed for the actual link to test
  */
 function isParentPage(page) {
-  return _.has(page, 'parentHrefSelector') && _.has(page, 'parentPath');
+  return _.has(page, "parentHrefSelector") && _.has(page, "parentPath");
 }
 
 /*
  * Build URL from host path and querystring. Never been done before.
  */
 function makeTestUrl(host, path, qs) {
-  var base   = host + path
-    , qsJoin = base.strPos ? '&' : '?'
-    ;
-
-  return host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : '');
+  let base = host + path;
+  let qsJoin = base.strPos ? "&" : "?";
+  let url = host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : "")
+  
+  debug('test url:' + url);
+  return url;
 }
 
 /*
  * Given a bit of html get the first matching link in it.
  */
 function getHrefFromElement(body, selector) {
-  var href
-    , $ = cheerio.load(body)
-    ;
+  var href,
+    $ = cheerio.load(body);
 
   if ($(selector)[0]) {
     href = $(selector)[0].attribs.href;
   }
 
-  debug('using ' + selector + ' found a href of' + href);
+  debug("using " + selector + " found a href of" + href);
   return href;
 }
 
 /*
  * Run each test
  */
-eventEmitter.on('runTests', function runTests(tests) {
-  tests.forEach(function(test){
+eventEmitter.on("runTests", function runTests(tests) {
+  tests.forEach(function(test) {
     setTimeout(function() {
       runTest(test);
     }, getTestRunTimeout());
   });
 });
 
-
 /*
  * Spaces out the tests every `testInterval` ms to prevent overloading WPT
  */
 function getTestRunTimeout() {
-  var difference = Date.now() - nextTestRun
-    , pad = difference > 0 ? 0 : (testInterval + Math.abs(difference))
-  ;
+  var difference = Date.now() - nextTestRun,
+    pad = difference > 0 ? 0 : testInterval + Math.abs(difference);
 
   nextTestRun = Date.now() + pad;
   return pad;
@@ -179,24 +196,31 @@ function getTestRunTimeout() {
  * The specified options could be in config.
  */
 function runTest(test) {
-  debug('Starting test on ' + test.url + ' using ' + test.location);
+  debug("parsing test");
   var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
-  var wptLoc = testConfig.wptServer ? testConfig.wptServer : 'https://www.webpagetest.org';
+  var wptLoc = testConfig.wptServer
+    ? testConfig.wptServer
+    : "https://www.webpagetest.org";
 
-  var wptPublic = new WebPageTest(wptLoc, testConfig.wptApiKey)
-    , options = {
-        pollResults   : 5, //poll every 5 seconds
-        timeout       : 600, //wait for 10 minutes
-        video         : true, //this enables the filmstrip
-        location      : test.location,
-        firstViewOnly : false, //do calculate the second/refresh view
-        requests      : false //do not capture the details of every request
-      }
-    ;
+  var wpt = new WebPageTest(wptLoc, testConfig.wptApiKey),
+    options = {
+      pollResults: 5, //poll every 5 seconds
+      timeout: 600, //wait for 10 minutes
+      video: true, //this enables the filmstrip
+      location: test.location,
+      firstViewOnly: test.firstViewOnly, //refresh view?
+      requests: false //do not capture the details of every request
+    };
 
-  wptPublic.runTest(test.url, options, function(err, results) {
+  wptScript = wpt.scriptToString(test.script);
+
+  debug(
+    "starting test on script " + wptScript + " in location " + test.location
+  );
+
+  wpt.runTest(wptScript, options, function(err, results) {
     if (err) {
-      return console.error([err, {url: test.url, options: options}]);
+      return console.error([err, { url: test.url, options: options }]);
     }
 
     dataStore.saveDatapoint(test, results);
