@@ -103,10 +103,10 @@ app.startTests = function() {
         testSuite.runEvery +
         " minutes"
     );
-    setInterval(function() {
+    setInterval(function(scheduledTest) {
       debug("running scheduled test");
-      request(url);
-    }, interval);
+      request(scheduledTest);
+    }, interval, url);
     //and run it once to start
     request(url);
   });
