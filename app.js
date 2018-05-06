@@ -108,7 +108,8 @@ app.startTests = function() {
       request(scheduledTest);
     }, interval, url);
     //and run it once to start
-    request(url);
+    debug('requesting ' + url);
+    //request(url);
   });
 };
 

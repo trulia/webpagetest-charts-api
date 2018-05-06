@@ -111,6 +111,9 @@ dataStore = {
 
     let suiteDir = resultsPath + suiteId;
     fs.readdir(suiteDir, function(err, testDirsRaw) {
+      if (err) {
+        console.error(err);
+      }
       const testDirs = testDirsRaw.filter(junk.not);
 
       suite = {

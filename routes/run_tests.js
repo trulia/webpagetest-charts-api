@@ -34,9 +34,9 @@ let testInterval = 1000 * 10;
 router.get("/:testSuite", function(req, res, next) {
   const testSuite = _.find(
     testConfig.testSuites,
-    "suiteId",
-    req.params.testSuite
+    {suiteId: req.params.testSuite}
   );
+
   eventEmitter.emit("startTests", testSuite);
   res.json({ message: "tests have started for " + req.params.testSuite });
 });
@@ -95,13 +95,13 @@ function buildTestScript(item) {
   if (item.fullTestScript) {
     script = item.fullTestScript;
   } else {
+    if (item.preTestScript) {
+      script = item.preTestScript.slice(0)
+      script.push({ logdata: 1 });
+      script.unshift({ logdata: 0 });
+    }
     testUrl = makeTestUrl(item.testHost, item.path, item.queryStringData);
     script.push({ navigate: testUrl });
-    if (item.preTestScript) {
-      item.preTestScript.unshift({ logdata: 0 });
-      item.preTestScript.push({ logdata: 1 });
-      script = item.preTestScript.concat(script);
-    }
   }
   return script;
 }
@@ -146,12 +146,12 @@ function isParentPage(page) {
  * Build URL from host path and querystring. Never been done before.
  */
 function makeTestUrl(host, path, qs) {
-  var base = host + path,
-    qsJoin = base.strPos ? "&" : "?";
-
-  return (
-    host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : "")
-  );
+  let base = host + path;
+  let qsJoin = base.strPos ? "&" : "?";
+  let url = host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : "")
+  
+  debug('test url:' + url);
+  return url;
 }
 
 /*

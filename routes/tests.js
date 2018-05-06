@@ -100,7 +100,7 @@ function makeDateCutoff(cutoff, suiteConfig) {
 }
 
 function makeDataRange(range, suiteConfig) {
-  const range = range ? range : "0,0";
+  range = range ? range : "0,0";
   const defaultVal =
     suiteConfig && suiteConfig.dataRange
       ? suiteConfig.dataRange
