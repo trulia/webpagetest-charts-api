@@ -109,7 +109,7 @@ app.startTests = function() {
     }, interval, url);
     //and run it once to start
     debug('requesting ' + url);
-    //request(url);
+    request(url);
   });
 };
 
