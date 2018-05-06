@@ -2,21 +2,21 @@
  * Defines routes and the test running cron/setInterval
  */
 
-var express     = require('express');
-var path        = require('path');
-var logger      = require('morgan');
-var compress    = require('compression');
-var jf          = require('jsonfile');
-var request     = require('request');
-var debug       = require('debug')('wpt-api:app');
+const express = require("express");
+const path = require("path");
+const logger = require("morgan");
+const compress = require("compression");
+const jf = require("jsonfile");
+const request = require("request");
+const debug = require("debug")("wpt-api:app");
 
 //route handlers
-var info        = require('./routes/info');
-var suiteConfig = require('./routes/suite_config');
-var runTests    = require('./routes/run_tests');
-var tests       = require('./routes/tests');
+const info = require("./routes/info");
+const suiteConfig = require("./routes/suite_config");
+const runTests = require("./routes/run_tests");
+const tests = require("./routes/tests");
 
-var app         = express();
+const app = express();
 
 // if you want authentication, uncomment this section
 // and `npm install --save basic-auth`
@@ -41,30 +41,28 @@ var app         = express();
 // app.use(checkAuth('a-username', 'a-password'));
 // end auth section
 
-
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(compress());
 
 //used to serve saved assets saved to the fs from wpt
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static(path.join(__dirname, "public")));
 
 //map the routes
-app.use('/', info);
-app.use('/suite_config', suiteConfig);
-app.use('/run_tests', runTests);
-app.use('/tests', tests);
+app.use("/", info);
+app.use("/suite_config", suiteConfig);
+app.use("/run_tests", runTests);
+app.use("/tests", tests);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (app.get("env") === "development") {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.json({
@@ -89,17 +87,24 @@ app.use(function(err, req, res, next) {
  * called by the bin/www when the server starts
  * to listen.
  */
-app.startTests = function () {
+app.startTests = function() {
   //read in the config
-  var testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
+  const testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
 
   //start the testing loop
-  testConfig.testSuites.forEach(function(testSuite){
-    var url = 'http://localhost:' + app.get('port') + '/run_tests/' + testSuite.suiteId;
-    var interval = testSuite.runEvery * 60 * 1000;
-    debug('Setting test run for ' + url + ' every ' + testSuite.runEvery + ' minutes');
-    setInterval(function(){
-      debug('running scheduled test')
+  testConfig.testSuites.forEach(function(testSuite) {
+    const url =
+      "http://localhost:" + app.get("port") + "/run_tests/" + testSuite.suiteId;
+    const interval = testSuite.runEvery * 60 * 1000;
+    debug(
+      "Setting test run for " +
+        url +
+        " every " +
+        testSuite.runEvery +
+        " minutes"
+    );
+    setInterval(function() {
+      debug("running scheduled test");
       request(url);
     }, interval);
     //and run it once to start
