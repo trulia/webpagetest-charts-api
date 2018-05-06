@@ -115,7 +115,8 @@ function makeDataRange(range, suiteConfig) {
   });
 
   //valid range, or default for suite, or default for anything
-  return dataRange[0] < dataRange[1] ? dataRange : defaultVal;
+  var validRange = (dataRange[0] < dataRange[1]) ? dataRange : defaultVal
+  return validRange;
 }
 
 function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
