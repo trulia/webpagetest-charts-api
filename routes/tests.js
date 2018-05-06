@@ -101,9 +101,16 @@ function makeDateCutoff(cutoff, suiteConfig) {
 }
 
 function makeDataRange(range, suiteConfig) {
-  var dataRange = !range ? [0,0] : range.split(',').map(function(val){ return parseInt(val, 10) || Infinity })
-    , defaultVal = (suiteConfig && suiteConfig.dataRange) ? suiteConfig.dataRange : defaultChartConfig.dataRange
-    ;
+  var range = range ? range : '0,0';
+  var defaultVal = (suiteConfig && suiteConfig.dataRange) ? suiteConfig.dataRange : defaultChartConfig.dataRange;
+
+  var dataRange = range.split(',').map(function(val){
+          var parsed = parseInt(val, 10)
+            if (isNaN(parsed)) {
+              parsed = Infinity
+            }
+            return parsed;
+      })
 
   //valid range, or default for suite, or default for anything
   return (dataRange[0] < dataRange[1]) ? dataRange : defaultVal;
@@ -129,13 +136,20 @@ function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
     }
 
     fvPointValue = parseInt(dp.data.runs[1].firstView[chartConfig.type], 10);
-    rvPointValue = parseInt(dp.data.runs[1].repeatView[chartConfig.type], 10);
+
+    //if test requests a repeat firstView
+    if(!testConfig.firstViewOnly) {
+      rvPointValue = parseInt(dp.data.runs[1].repeatView[chartConfig.type], 10);
+    }
 
     //this filtering should be moved to the data_store
-    if (inRange(fvPointValue, chartConfig.dataRange)
-      && inRange(rvPointValue, chartConfig.dataRange)) {
+    if ((inRange(fvPointValue, chartConfig.dataRange)
+      && testConfig.firstViewOnly) ||
+       inRange(fvPointValue, chartConfig.dataRange) && inRange(rvPointValue, chartConfig.dataRange)) {
       chart.fvValues.push([dataDate.getTime(), fvPointValue]);
-      chart.rvValues.push([dataDate.getTime(), rvPointValue]);
+      if(!testConfig.firstViewOnly) {
+        chart.rvValues.push([dataDate.getTime(), rvPointValue]);
+      }
       chart.datapoints.push(dp.datapointId);
     }
 

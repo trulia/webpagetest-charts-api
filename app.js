@@ -99,6 +99,7 @@ app.startTests = function () {
     var interval = testSuite.runEvery * 60 * 1000;
     debug('Setting test run for ' + url + ' every ' + testSuite.runEvery + ' minutes');
     setInterval(function(){
+      debug('running scheduled test')
       request(url);
     }, interval);
     //and run it once to start

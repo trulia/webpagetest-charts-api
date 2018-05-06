@@ -41,25 +41,24 @@ function goodTestResults (results) {
       , res = true
       ;
 
+    console.log(results.data.runs[1])
+
     if (!results.data.runs[1]) {
       msg = 'no results.data.runs[1]';
       res = false;
     } else if (!results.data.runs[1].firstView) {
       msg = 'no results.data.runs[1].firstView';
       res = false;
-    } else if (!results.data.runs[1].repeatView) {
-      msg = 'no results.data.runs[1].repeatView';
-      res = false;
     } else if (!results.data.runs[1].firstView.images) {
       msg = 'no results.data.runs[1].firstView.images';
       res = false;
-    } else if (!results.data.runs[1].repeatView.images) {
+    } else if (results.data.runs[1].repeatView && !results.data.runs[1].repeatView.images) {
       msg = 'no results.data.runs[1].repeatView.images';
       res = false;
     } else if (!results.data.runs[1].firstView.SpeedIndex) {
       msg = 'no results.data.runs[1].firstView.SpeedIndex';
       res = false;
-    } else if (!results.data.runs[1].repeatView.SpeedIndex) {
+    } else if (results.data.runs[1].repeatView && !results.data.runs[1].repeatView.SpeedIndex) {
       msg = 'no results.data.runs[1].repeatView.SpeedIndex';
       res = false;
     }
