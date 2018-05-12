@@ -23,6 +23,6 @@
     "morgan": "1.7.0",
     "pg": "6.0.1",
     "request": "2.74.0",
-    "webpagetest": "0.3.4"
+    "webpagetest": "0.3.8"
   }
 }

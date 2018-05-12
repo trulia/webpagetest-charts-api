@@ -209,7 +209,8 @@ function runTest(test) {
       video: true, //this enables the filmstrip
       location: test.location,
       firstViewOnly: test.firstViewOnly, //refresh view?
-      requests: false //do not capture the details of every request
+      requests: false, //do not capture the details of every request
+      lighthouse: true,
     };
 
   wptScript = wpt.scriptToString(test.script);
@@ -222,7 +223,6 @@ function runTest(test) {
     if (err) {
       return console.error([err, { url: test.url, options: options }]);
     }
-
     dataStore.saveDatapoint(test, results);
   });
 }

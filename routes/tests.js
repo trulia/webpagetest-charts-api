@@ -24,7 +24,18 @@ const availableChartTypes = [
   "loadTime",
   "fullyLoaded",
   "TTFB",
-  "visualComplete"
+  "visualComplete",
+  "lighthouse.Performance",
+  "lighthouse.Performance.speed-index-metric",
+  "lighthouse.BestPractices",
+  "lighthouse.Performance.estimated-input-latency",
+  "lighthouse.Performance.first-interactive",
+  "lighthouse.Accessibility",
+  "lighthouse.Performance.consistently-interactive",
+  "lighthouse.SEO",
+  "lighthouse.ProgressiveWebApp",
+  "lighthouse.Performance.first-meaningful-paint",
+  "lighthouse.Performance",
 ];
 const defaultChartConfig = {
   type: "SpeedIndex",
@@ -137,11 +148,11 @@ function chartFromDatapoints(suiteId, testConfig, datapoints, chartConfig) {
       return;
     }
 
-    fvPointValue = parseInt(dp.data.runs[1].firstView[chartConfig.type], 10);
+    fvPointValue = parseFloat(dp.data.runs[1].firstView[chartConfig.type]);
 
     //if test requests a repeat firstView
     if (!testConfig.firstViewOnly) {
-      rvPointValue = parseInt(dp.data.runs[1].repeatView[chartConfig.type], 10);
+      rvPointValue = parseFloat(dp.data.runs[1].repeatView[chartConfig.type]);
     }
 
     //this filtering should be moved to the data_store
