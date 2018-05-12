@@ -15,6 +15,7 @@ var apiInterface = {
       delete results.data.average;
       delete results.data.median;
       delete results.data.standardDeviation;
+      delete results.data.lighthouse; //huuuuuge
     } catch (e) {
       debug("ran into trouble deleting extra data.");
     }
@@ -60,6 +61,15 @@ function goodTestResults(results) {
     !results.data.runs[1].repeatView.SpeedIndex
   ) {
     msg = "no results.data.runs[1].repeatView.SpeedIndex";
+    res = false;
+  } else if (!results.data.runs[1].firstView['lighthouse.Performance']) {
+    msg = "no results.data.runs[1].firstView.['lighthouse.Performance']";
+    res = false;
+  } else if (
+    results.data.runs[1].repeatView &&
+    !results.data.runs[1].repeatView['lighthouse.Performance']
+  ) {
+    msg = "no results.data.runs[1].repeatView.['lighthouse.Performance']";
     res = false;
   }
 
