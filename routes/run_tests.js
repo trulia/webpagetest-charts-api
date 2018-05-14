@@ -58,10 +58,16 @@ eventEmitter.on("startTests", function startTests(testSuite) {
       queryStringData: testSuite.queryStringData,
       parentRequestUserAgent: testSuite.parentRequestUserAgent,
       SpeedIndexChartRange: testSuite.SpeedIndexChartRange,
-      location: testSuite.location
+      location: testSuite.location,
+      firstViewOnly: testSuite.firstViewOnly
     });
 
     testSuite.testPages[index].suiteId = testSuite.suiteId;
+
+    if (testSuite.preTestScript) {
+      testSuite.testPages[index].preTestScript = testSuite.testPages[index].preTestScript ? testSuite.testPages[index].preTestScript : [];
+      testSuite.testPages[index].preTestScript = testSuite.preTestScript.concat(testSuite.testPages[index].preTestScript)
+    }
 
     if (testSuite.parentRequestUserAgent) {
       testSuite.testPages[index].headers = {
