@@ -32,10 +32,9 @@ let testInterval = 1000 * 10;
  * Run the tests for the given suite
  */
 router.get("/:testSuite", function(req, res, next) {
-  const testSuite = _.find(
-    testConfig.testSuites,
-    {suiteId: req.params.testSuite}
-  );
+  const testSuite = _.find(testConfig.testSuites, {
+    suiteId: req.params.testSuite
+  });
 
   eventEmitter.emit("startTests", testSuite);
   res.json({ message: "tests have started for " + req.params.testSuite });
@@ -65,8 +64,13 @@ eventEmitter.on("startTests", function startTests(testSuite) {
     testSuite.testPages[index].suiteId = testSuite.suiteId;
 
     if (testSuite.preTestScript) {
-      testSuite.testPages[index].preTestScript = testSuite.testPages[index].preTestScript ? testSuite.testPages[index].preTestScript : [];
-      testSuite.testPages[index].preTestScript = testSuite.preTestScript.concat(testSuite.testPages[index].preTestScript)
+      testSuite.testPages[index].preTestScript = testSuite.testPages[index]
+        .preTestScript
+        ? testSuite.testPages[index].preTestScript
+        : [];
+      testSuite.testPages[index].preTestScript = testSuite.preTestScript.concat(
+        testSuite.testPages[index].preTestScript
+      );
     }
 
     if (testSuite.parentRequestUserAgent) {
@@ -102,7 +106,7 @@ function buildTestScript(item) {
     script = item.fullTestScript;
   } else {
     if (item.preTestScript) {
-      script = item.preTestScript.slice(0)
+      script = item.preTestScript.slice(0);
       script.push({ logdata: 1 });
       script.unshift({ logdata: 0 });
     }
@@ -154,9 +158,10 @@ function isParentPage(page) {
 function makeTestUrl(host, path, qs) {
   let base = host + path;
   let qsJoin = base.strPos ? "&" : "?";
-  let url = host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : "")
-  
-  debug('test url:' + url);
+  let url =
+    host + path + (!_.isEmpty(qs) ? qsJoin + querystring.stringify(qs) : "");
+
+  debug("test url:" + url);
   return url;
 }
 
@@ -216,7 +221,7 @@ function runTest(test) {
       location: test.location,
       firstViewOnly: test.firstViewOnly, //refresh view?
       requests: false, //do not capture the details of every request
-      lighthouse: true,
+      lighthouse: true
     };
 
   wptScript = wpt.scriptToString(test.script);

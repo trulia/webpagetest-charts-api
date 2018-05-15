@@ -62,12 +62,12 @@ function goodTestResults(results) {
   ) {
     msg = "no results.data.runs[1].repeatView.SpeedIndex";
     res = false;
-  } else if (!results.data.runs[1].firstView['lighthouse.Performance']) {
+  } else if (!results.data.runs[1].firstView["lighthouse.Performance"]) {
     msg = "no results.data.runs[1].firstView.['lighthouse.Performance']";
     res = false;
   } else if (
     results.data.runs[1].repeatView &&
-    !results.data.runs[1].repeatView['lighthouse.Performance']
+    !results.data.runs[1].repeatView["lighthouse.Performance"]
   ) {
     msg = "no results.data.runs[1].repeatView.['lighthouse.Performance']";
     res = false;
