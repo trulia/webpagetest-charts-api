@@ -88,29 +88,36 @@ app.use(function(err, req, res, next) {
  * to listen.
  */
 app.startTests = function() {
-  //read in the config
-  const testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
-
-  //start the testing loop
-  testConfig.testSuites.forEach(function(testSuite) {
-    const url =
-      "http://localhost:" + app.get("port") + "/run_tests/" + testSuite.suiteId;
-    const interval = testSuite.runEvery * 60 * 1000;
-    debug(
-      "Setting test run for " +
-        url +
-        " every " +
-        testSuite.runEvery +
-        " minutes"
-    );
-    setInterval(function(scheduledTest) {
-      debug("running scheduled test");
-      request(scheduledTest);
-    }, interval, url);
-    //and run it once to start
-    debug('requesting ' + url);
-    request(url);
-  });
+  // do this every minute, track the last time te test ran
+  // via app.set and get
+  setInterval(function() {
+    //read in the config
+    const testConfig = jf.readFileSync(process.env.SUITE_CONFIG);
+    testConfig.testSuites.forEach(function(testSuite) {
+      const url =
+        "http://localhost:" +
+        app.get("port") +
+        "/run_tests/" +
+        testSuite.suiteId;
+      const interval = testSuite.runEvery * 60 * 1000;
+      debug(
+        "Checking test run for " +
+          url +
+          " every " +
+          testSuite.runEvery +
+          " minutes"
+      );
+      let lastRunTs = parseInt(app.get("ranSuite" + testSuite.suiteId), 10);
+      lastRunTs = isNaN(lastRunTs) ? 0 : lastRunTs;
+      if (lastRunTs + interval < Date.now()) {
+        debug("requesting " + url);
+        app.set("ranSuite" + testSuite.suiteId, Date.now());
+        request(url);
+      } else {
+        debug(url + " still within interval");
+      }
+    });
+  }, 60000);
 };
 
 module.exports = app;
