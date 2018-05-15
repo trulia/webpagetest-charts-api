@@ -35,7 +35,7 @@ const availableChartTypes = [
   "lighthouse.SEO",
   "lighthouse.ProgressiveWebApp",
   "lighthouse.Performance.first-meaningful-paint",
-  "lighthouse.Performance",
+  "lighthouse.Performance"
 ];
 const defaultChartConfig = {
   type: "SpeedIndex",
@@ -126,7 +126,7 @@ function makeDataRange(range, suiteConfig) {
   });
 
   //valid range, or default for suite, or default for anything
-  var validRange = (dataRange[0] < dataRange[1]) ? dataRange : defaultVal
+  var validRange = dataRange[0] < dataRange[1] ? dataRange : defaultVal;
   return validRange;
 }
 
