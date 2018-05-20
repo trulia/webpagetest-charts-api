@@ -14,6 +14,18 @@ visitors. Read the  [SpeedIndex docs](https://sites.google.com/a/webpagetest.org
 - ~~requests: how many requests are made when loading the page~~ (needs update for new API response)
 - TTFB: time to the first byte recieved, rumored to be the most important for SEO
 - visualComplete: Time (ms) until the page is done changing visually
+- Lighthouse Suite: [Lighthouse](https://developers.google.com/web/tools/lighthouse/) tracks a lot of metrics, the ones WepageTest expsoses are:
+  - Performance
+  - Performance.speed-index-metric
+  - Performance.first-meaningful-paint
+  - Performance.estimated-input-latency
+  - Performance.first-interactive
+  - Performance.consistently-interactive
+  - BestPractices
+  - Accessibility
+  - SEO
+  - ProgressiveWebApp
+
 
 It also keeps links to
 the full WebPagetest results for deeper introspection. You can build a UI on
